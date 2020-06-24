@@ -1,4 +1,5 @@
-#About
+# About
+
 This is a docker-compose that will start a development environment that will have keycloak and privacyId3a in addition to the plugin to be integrated within keycloak. The docker env are stored separately.
 
 ## Containers
