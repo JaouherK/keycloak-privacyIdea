@@ -1,12 +1,5 @@
 version: '2.1'
 
-volumes:
-  kong_data: {}
-  keycloak-datastore:
-
-networks:
-  kong-net:
-
 services:
   keycloak-db:
     container_name: keycloak-db
@@ -14,7 +7,7 @@ services:
     volumes:
       - keycloak-datastore:/var/lib/postgresql/data
     networks:
-      - kong-net
+      - net
     ports:
       - "25432:5432"
     environment:
@@ -26,11 +19,11 @@ services:
     container_name: keycloak-app
     build:
       context: ./
-      dockerfile: Dockerfile
+      dockerfile: keycloak/Dockerfile
     depends_on:
       - keycloak-db
     networks:
-      - kong-net
+      - net
     ports:
       - "8180:8080"
     environment:
@@ -42,3 +35,50 @@ services:
       DB_PASSWORD: password
       KEYCLOAK_USER:     admin
       KEYCLOAK_PASSWORD: admin
+
+  privacyidea-app:
+    container_name: privacyidea-app
+    image: privacyidea:dev
+    build:
+      context: .
+      dockerfile: privacyIDEA/Dockerfile
+    ports:
+      - 5000:5000
+    volumes:
+      - pidata:/home/pi/etc/privacyidea
+    networks:
+      - net
+    environment:
+      ADMIN_ACCOUNT: admin@admin.com
+      ADMIN_PASSWORD: admin
+      DB_HOSTNAME: privacyidea-db:3306
+      DB_USER: root
+      DB_PASSWORD: password
+      DB_DATABASE: pi
+      # This is used to encrypt the auth_token
+      SECRET_KEY: 'T0p S3Cret!'
+      # This is used to encrypt the admin passwords
+      PI_PEPPER: 'S3Cret'
+      PI_UI_DEACTIVATED: 'False'
+
+  ##mysql
+  privacyidea-db:
+    container_name: privacyidea-db
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "password"
+    volumes:
+      - privacyIdea-datastore:/var/lib/mysql
+    ports:
+      - 3306:3306
+    networks:
+      - net
+
+networks:
+  net:
+    name: platform_net
+
+volumes:
+  keycloak-datastore:
+  privacyIdea-datastore:
+  pidata:
