@@ -67,6 +67,7 @@ services:
     image: mysql
     environment:
       MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_DATABASE: "pi"
     volumes:
       - privacyIdea-datastore:/var/lib/mysql
     ports:
